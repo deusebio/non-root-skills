@@ -32,7 +32,7 @@ To assess whether a charm complies with non-root user requirements, you can foll
     - `uid` and `gid` are set to `584792`.  
     - Identify the container image used by the charm by checking the `upstream-source` field in the `resources` section that has the same key as the `resource` field in the `containers` section.
     - Check in the charm code for any operation (through Pebble) that requires read/write commands
-    - Pull the image from the network and verify that permissions in the docker image on the path required to be used by the charm are set correctly to allow non-root user access (`584792` has read and write permissions).
+    - Pull the image and verify using docker commands that permissions for the paths required by the charm are set correctly to allow non-root user access (`584792` has read and write permissions). For the assessment DO NOT check the upstream `rockcraft.yaml` file. This will be done in the mitigation phase if needed.
 3. Provide a report of the assessment, in the form:
     - Charm name: <charm-name>
     - Non-root charm container: <compliant/non-compliant>
@@ -78,9 +78,7 @@ Depending on the issues identified during the assessment phase, the following mi
         ```
         You can find a full example of a `rockcraft.yaml` file with the correct configuration for non-root user in the [references](./references/non-root-rock.yaml).
     - Add a test in the repository that runs the image using docker and verifies that the image is running as non-root user and that the permissions for the path used by the charm are set correctly to allow non-root user access. You can refer to the `test_non_root_image.py` file in the [references](./references/test_non_root_image.py) for an example of how to implement this test.
-
-
-    - Build the new image and update the charm's `metadata.yaml` or `charmcraft.yaml` file to reference the new image.
+    - Build the new image, publish the image to my personal docker hub and update the charm's `metadata.yaml` or `charmcraft.yaml` file to reference the new image.
 
 
 ## Verification
@@ -132,6 +130,8 @@ This test will check that the container's security context is correctly set to r
 ### Requirements
 
 Make sure that `gh` was installed and configured on your system. If not, ask the user to configure it by following the instructions in the [official GitHub CLI documentation](https://cli.github.com/manual/installation). YOU DO NOT configure `gh` for the user or ask for API keys.
+
+### Process
 
 After making the necessary changes to the charm to comply with non-root user requirements, you can contribute these changes back to the charm repository. If the charm was already compliant, do not do anything in this phase. If you had to make changes, open a PR with these changes.
 1. First, fork the charm repository and add the remote to the local git repository.
