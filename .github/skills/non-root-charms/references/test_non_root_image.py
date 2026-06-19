@@ -15,7 +15,34 @@ def test_rock():
     rock_version = check_rock.get_version()
     LOCAL_ROCK_IMAGE = f"{rock_image}:{rock_version}"
 
-    # assert the rock grants read access to the expected files
+    # Assert container runtime user/group matches the shared non-root identity.
+    subprocess.run(
+        [
+            "docker",
+            "run",
+            "--rm",
+            LOCAL_ROCK_IMAGE,
+            "sh",
+            "-c",
+            'test "$(id -u)" = "584792"',
+        ],
+        check=True,
+    )
+
+    subprocess.run(
+        [
+            "docker",
+            "run",
+            "--rm",
+            LOCAL_ROCK_IMAGE,
+            "sh",
+            "-c",
+            'test "$(id -g)" = "584792"',
+        ],
+        check=True,
+    )
+
+    # Assert the rock grants read access to expected files.
     subprocess.run(
         [
             "docker",

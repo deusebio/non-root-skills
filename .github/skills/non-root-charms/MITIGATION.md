@@ -17,8 +17,9 @@ Consume the output of the Assessment phase, in the format of
 Charm name: <charm-name>
 Non-root charm container: <compliant/non-compliant>
 Workloads: 
-    - <container-name>: <compliant/non-compliant>
-    - Reason: <reason for non-compliance, if applicable>
+    - container-name: <container-name>
+      status: <compliant/non-compliant>
+      reason: <reason for non-compliance, if applicable>
 ```
 
 ## Process
@@ -53,7 +54,7 @@ Depending on the issues identified during the assessment phase, implement the fo
         ```
         You can find a full example of a `rockcraft.yaml` file with the correct configuration for non-root user in the [references](./references/non-root-rock.yaml).
         - Build the new image, using either `rockcraft` for a `rockcraft.yaml` file.
-        - Add a test in the repository that runs the image using docker and verifies that the image is running as non-root user and that the permissions for the path used by the charm are set correctly to allow non-root user access. You can refer to the `test_non_root_image.py` file in the [references](./references/test_non_root_image.py) for an example of how to implement this test.
+        - Add a test in the repository that runs the image using docker and verifies that the image is running as non-root user and that the permissions for the path used by the charm are set correctly to allow non-root user access. The test should explicitly assert the runtime UID/GID (for example with `id -u` and `id -g`) and path access checks. You can refer to the `test_non_root_image.py` file in the [references](./references/test_non_root_image.py) for an example of how to implement this test.
         - Publish the image to my personal docker hub and update the charm's `metadata.yaml` or `charmcraft.yaml` file to reference the new image.
 
 ## Output 

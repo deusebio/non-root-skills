@@ -21,8 +21,9 @@ To assess whether a charm complies with non-root user requirements, you can foll
     - Charm name: <charm-name>
     - Non-root charm container: <compliant/non-compliant>
     - Workloads: 
-        - <container-name>: <compliant/non-compliant>
-        - Reason: <reason for non-compliance, if applicable>
+        - container-name: <container-name>
+          status: <compliant/non-compliant>
+          reason: <reason for non-compliance, if applicable>
   The reason for non-compliance for containers can be one of the following:
     - non-root user issue: `uid` and `gid` are not set to `584792`.
     - Permission issue: when the charm code includes operations that require read/write commands without proper permissions for non-root users.
@@ -35,8 +36,9 @@ Create a yaml with the following format:
 Charm name: <charm-name>
 Non-root charm container: <compliant/non-compliant>
 Workloads: 
-    - <container-name>: <compliant/non-compliant>
-    - Reason: <reason for non-compliance, if applicable>
+  - container-name: <container-name>
+    status: <compliant/non-compliant>
+    reason: <reason for non-compliance, if applicable>
 ```
 
 Also output a Markdown table. See an example of the table below:

@@ -2,7 +2,7 @@
 
 ## Input 
 
-Consume the output from the assessment phase to implement the verification steps. The verification steps can be implemented straight after the assessment phase, but the final verification to make sure the changes/tests align can also be done after the mitigation phase has been completed. Should there be any issue coming from the mitigation step, a feedback look between the Verification and Mitigation phases needs to be established. 
+Consume the output from the assessment phase to implement the verification steps. The verification steps can be implemented straight after the assessment phase, but the final verification to make sure the changes/tests align can also be done after the mitigation phase has been completed. Should there be any issue coming from the mitigation step, a feedback loop between the Verification and Mitigation phases needs to be established. 
 
 ## Process
 
@@ -10,7 +10,7 @@ First check if the charm has an existing integration test that verifies that the
 
 To add the test
 
-1. Add boiler plate functions. First provide the boilerplate for the integration test. If there is an `helpers.py` file in the integration test directory, you can add the functions defined in `asserts/non-root-check.py` in the helpers module. If not, you can create a new helper module for the security context verification.
+1. Add boiler plate functions. First provide the boilerplate for the integration test. If there is an `helpers.py` file in the integration test directory, you can add the functions defined in `assets/non-root-check.py` in the helpers module. If not, you can create a new helper module for the security context verification.
 
 2. Once the support functions are in place, you can add the test function that checks the security context of the containers. At the top of the integration test file, add the following imports and build the `CONTAINERS_SECURITY_CONTEXT_MAP` from `metadata.yaml`. This map is generated automatically from the `uid`/`gid` values in the `containers` section, plus a `charm` entry for the Juju agent container (UID/GID 170). Then 
 
@@ -52,4 +52,4 @@ This test will check that the container's security context is correctly set to r
 
 ## Output
 
-Commit changes and provide as output the list of commits. 
+Commit changes and provide as output the list of commits. If the Contribution phase is executed, also include the PR link in the final response. 
