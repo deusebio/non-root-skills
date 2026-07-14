@@ -1,6 +1,6 @@
 # Assessment
 
-Doing the assessment of the charms and the image. 
+This section describes how to assess whether a charm complies with non-root user requirements.
 
 ## Requirements
 
