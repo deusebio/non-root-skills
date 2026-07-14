@@ -20,8 +20,7 @@ The skill allows performing four main tasks:
 * Assessment: Assess whether a charm complies with non-root user requirements, and identify relevant issues. Refer to [Assessment section](./ASSESSMENT.md) for more information.
 * Mitigation: Provide guidance on how to modify the charm to run as a non-root user. Refer to [Mitigation section](./MITIGATION.md) for more information.
 * Verification: Ensure that the changes made to the charm successfully enforce non-root user execution. Refer to [Verification section](./VERIFICATION.md) for more information.
-* Contribution: Contribute to the charm repository with the necessary changes to comply with non-root user requirements, including code changes and tests. Refer to [Contribution section](./CONTRIBUTION.md) for more information.
-
+* Contribution: Contribute to the charm repository with the necessary changes to comply with non-root user requirements, including code changes and tests. When running in `dry-mode`, do not push the changes to any repository but only create the branches that can be compared with reference implementations. Refer to [Contribution section](./CONTRIBUTION.md) for more information.
 
 ## How to use the skill
 
@@ -30,3 +29,7 @@ To use the skill, you can invoke it with the path to the charm repository as an 
 ```bash
 /non-root-charms /path/to/charm/repo
 ```
+
+## Testing
+
+Refer to [Testing section](./TESTING.md) for more information on how to evaluate the performance and quality of the current skills using reference implementations of non-root charms.

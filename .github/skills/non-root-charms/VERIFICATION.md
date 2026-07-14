@@ -52,4 +52,4 @@ This test will check that the container's security context is correctly set to r
 
 ## Output
 
-Commit changes and provide as output the list of commits. If the Contribution phase is executed, also include the PR link in the final response. 
+Commit changes to the local branch and provide as output the list of commits. When running in `dry-mode`, do not push the branch. If the Contribution phase is executed, also include the PR link in the final response.

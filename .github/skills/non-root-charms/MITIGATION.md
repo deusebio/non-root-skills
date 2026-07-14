@@ -26,7 +26,7 @@ Workloads:
 
 Depending on the issues identified during the assessment phase, implement the following mitigations:
 
-1. If the charm container is non-compliant, update the `metadata.yaml` or `charmcraft.yaml` file to include the `charm-user` key set to `non-root`.
+1. If the charm container is non-compliant, update the `metadata.yaml` or `charmcraft.yaml` file to include the `charm-user` key set to `non-root` or `sudoer` depending on whether elevated privileges are required by some of the used commands. When elevated privileges are required, make sure that the `charm-user` is `sudoer`, and that `sudo` is used in front of commands requiring elevated privileges. Review that the charm only writes to paths that are writable by the charm user — typically relative paths within the charm directory (e.g. `./path/to/file`) or paths under `/tmp`.
 2. If the charm's workload containers are not compliant because they do not have `uid` and `gid` set to `584792`, update the `metadata.yaml` or `charmcraft.yaml` file to set these values for each container.
 3. If the workload images are not compliant (either because the image does not run as `_daemon_` or the path used by the charm do not have the correct permission), a new image needs to be built with the correct permissions for non-root users. You MUST use `rockcraft` to build the image, even if it is resource intensive. DO NOT use `Dockerfile`. To do this:
     1. Identify the base image used by the charm by checking the `upstream-source` field in the `resources` section of the charm's configuration.
@@ -41,19 +41,20 @@ Depending on the issues identified during the assessment phase, implement the fo
                 override-prime: |
                 # Please refer to https://discourse.ubuntu.com/t/unifying-user-identity-across-snaps-and-rocks/36469
                 # for more information about shared user.
-                HUB_GID=584792
-                HUB_UID=584792
+                # Rename these variables to match the project (e.g. ALERTMANAGER_GID for alertmanager).
+                APP_GID=584792
+                APP_UID=584792
 
                 craftctl default
 
-                chown -R ${HUB_GID}:${HUB_UID} opt/
+                chown -R ${APP_GID}:${APP_UID} opt/
                 chmod -R 750 opt/
 
-                chown -R ${HUB_GID}:${HUB_UID} etc/
+                chown -R ${APP_GID}:${APP_UID} etc/
                 chmod -R 750 etc/...
         ```
         You can find a full example of a `rockcraft.yaml` file with the correct configuration for non-root user in the [references](./references/non-root-rock.yaml).
-        - Build the new image, using either `rockcraft` for a `rockcraft.yaml` file.
+        - Build the new image using `rockcraft`.
         - Add a test in the repository that runs the image using docker and verifies that the image is running as non-root user and that the permissions for the path used by the charm are set correctly to allow non-root user access. The test should explicitly assert the runtime UID/GID (for example with `id -u` and `id -g`) and path access checks. You can refer to the [`test_non_root_image.py`](./references/test_non_root_image.py) file in the [references folder](./references) for an example of how to implement this test. If the repository is using [dgoss](https://github.com/goss-org/goss/blob/master/extras/dgoss/README.md) to run the image validation, please stick to use the framework. You can refer to [`test_non_root_dgoss.yaml`](./references/test_non_root_dgoss.yaml) in the [references folder](./references) to an example of how to implement this.
         - Publish the image to my personal docker hub and update the charm's `metadata.yaml` or `charmcraft.yaml` file to reference the new image.
 
