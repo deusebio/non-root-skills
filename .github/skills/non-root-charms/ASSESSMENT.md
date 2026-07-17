@@ -11,7 +11,7 @@ This section describes how to assess whether a charm complies with non-root user
 To assess whether a charm complies with non-root user requirements, you can follow these steps:
 1. Identify all the charms included in a given repository
 2. For each charm, check the following:
-  - Check non-root charm container: Check either `metadata.yaml` or `charmcraft.yaml` to see if it specifies a non-root user in its configuration (`charm-user` key must be set to either `non-root` or `sudoer`). If this is not set, scan the charm code to understand
+  - Check non-root charm container: Check either `metadata.yaml` or `charmcraft.yaml` to see if it specifies a non-root user in its configuration (`charm-user` key must be set to either `non-root` or `sudoer`). If this is not set, scan the charm code to find out
     - Path in the charm container where the charm needs to be able to read/write
     - Commands that require elevated privileges (e.g. `apt`), which would need to be invoked with `sudo`.
   - Check non-root workloads. For each workload container (each entry defined in the `containers` section of either `metadata.yaml` or `charmcraft.yaml`), check that:

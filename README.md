@@ -15,6 +15,16 @@ Import the skill in your harness and then just use
 /non-root-charms <path-to-local-repository>
 ```
 
+## Testing the skill against regressions
+
+The skill also implements some testing to make sure its functionality are always in par with previous successful runs and non-root implementations. More information about the tests and the reference implementations can be found under the [TESTING.md](.github/skills/non-root-charms/TESTING.md) file.
+
+To run regression tests, start a new session and use the following prompt:
+
+```
+First read the skill under .github/skills/non-root-charms. Once you have loaded its content and you understand its functionality, I would like to use the "testing" capabilities described in the TESTING.md file, to make sure that the skill has not regression with the previous reference implementations.
+```
+
 ## License
 
 The Integration Hub for Apache Spark K8s charm is free software, distributed under the Apache Software License, version 2.0.

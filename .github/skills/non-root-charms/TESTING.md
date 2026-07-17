@@ -10,9 +10,9 @@ When evaluating the performance, first checkout the charm repository at the pinn
 /non-root-charms <charm-repository> in dry-mode
 ```
 
-The AI skill should make code changes autonomously and report back only once it has finished, providing as output the local branches with the changes for each repository (charm and rock).
+The AI skill should make code changes autonomously and report back only once it has finished, providing as output the local branches with the changes for each repository (charm and rock). DO NOT use the reference PR for guiding your implementation.
 
-Evaluate that the changes implemented are consistent with the reference implementation provided by the PR and provide a summary when they are not, splitting misalignment into major differences and minor/nitpick changes (e.g. variable naming) that do not affect functionalities.
+Only use the Reference PRs once the implementation is done to evaluate the results to verify that the changes are consistent with the reference implementation provided by the PR and provide a summary of the differences, splitting misalignment into major differences and minor/nitpick changes (e.g. variable naming) that do not affect functionalities.
 
 ### Evaluation rubric
 
