@@ -10,7 +10,19 @@ First check if the charm has an existing integration test that verifies that the
 
 To add the test
 
-1. Add boiler plate functions. First provide the boilerplate for the integration test. If there is an `helpers.py` file in the integration test directory, you can add the functions defined in `assets/non-root-check.py` in the helpers module. If not, you can create a new helper module for the security context verification.
+1. Add boiler plate functions. First provide the boilerplate for the integration test. If there is an `helpers.py` file in the integration test directory, you can add the functions defined in `assets/non-root-check.py` in the helpers module. If not, you can create a new helper module for the security context verification. Prefer `lightkube` over shelling out to `kubectl` through `subprocess` when listing pod names: it reuses the already-configured lightkube client, returns typed objects, and surfaces API errors instead of silently returning empty output. The `get_pod_names` helper in `assets/non-root-check.py` already follows this pattern:
+
+```python
+def get_pod_names(client: lightkube.Client, model: str, application_name: str) -> list[str]:
+    return [
+        pod.metadata.name
+        for pod in client.list(
+            Pod,
+            namespace=model,
+            labels={"app.kubernetes.io/name": application_name},
+        )
+    ]
+```
 
 2. Once the support functions are in place, you can add the test function that checks the security context of the containers. At the top of the integration test file, add the following imports and build the `CONTAINERS_SECURITY_CONTEXT_MAP` from `metadata.yaml`. This map is generated automatically from the `uid`/`gid` values in the `containers` section, plus a `charm` entry for the Juju agent container (UID/GID 170). Then 
 
@@ -36,7 +48,7 @@ def test_container_security_context(
     user ID and group ID.
     """
     lightkube_client = lightkube.Client()
-    pod_name = get_pod_names(juju.model, charm_name)[0]
+    pod_name = get_pod_names(lightkube_client, juju.model, charm_name)[0]
     assert_security_context(
         lightkube_client,
         pod_name,

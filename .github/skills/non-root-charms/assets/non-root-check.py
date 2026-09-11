@@ -3,7 +3,6 @@
 
 """Utilities for testing security context and user privileges in charms."""
 
-import subprocess
 from typing import Dict, TypedDict
 
 import lightkube
@@ -91,14 +90,19 @@ def generate_container_securitycontext_map(
     return c_uid_map
 
 
-def get_pod_names(model: str, application_name: str) -> list[str]:
+def get_pod_names(
+    client: lightkube.Client, model: str, application_name: str
+) -> list[str]:
     """Retrieve names of all pods belonging to a specific Juju application.
 
-    This function uses kubectl to query the Kubernetes cluster for pods that match
-    the given application name within the specified Juju model namespace. It filters
-    pods by the standard Juju label "app.kubernetes.io/name".
+    Uses lightkube to list the pods that match the given application name within
+    the specified Juju model namespace, filtering by the standard Juju label
+    "app.kubernetes.io/name". Prefer this over shelling out to kubectl via
+    subprocess: it reuses the already-configured lightkube client, returns typed
+    objects, and surfaces API errors instead of silently returning empty output.
 
     Args:
+        client (lightkube.Client): A configured lightkube client.
         model (str): The name of the Juju model, which corresponds to the Kubernetes
             namespace where the pods are deployed.
         application_name (str): The name of the Juju application whose pods should
@@ -106,23 +110,16 @@ def get_pod_names(model: str, application_name: str) -> list[str]:
 
     Returns:
         list[str]: A list of pod names matching the application. Returns an empty
-            list if no pods are found or if the kubectl command fails.
+            list if no pods are found.
     """
-    cmd = [
-        "kubectl",
-        "get",
-        "pods",
-        f"-n{model}",
-        f"-lapp.kubernetes.io/name={application_name}",
-        "--no-headers",
-        "-o=custom-columns=NAME:.metadata.name",
+    return [
+        pod.metadata.name
+        for pod in client.list(
+            Pod,
+            namespace=model,
+            labels={"app.kubernetes.io/name": application_name},
+        )
     ]
-    proc = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-    )
-    stdout = proc.stdout.decode("utf8")
-    return stdout.split()
 
 
 def assert_security_context(
