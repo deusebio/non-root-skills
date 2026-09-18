@@ -19,6 +19,8 @@ Only use the Reference PRs once the implementation is done to evaluate the resul
 | Severity | Examples |
 | -------- | -------- |
 | **Major** | Wrong UID/GID value; missing `run_user` in `rockcraft.yaml`; security-context test not added; non-root permissions not set on required paths |
+| **Major** | Charm writes directly to a root-owned system path after only adding `sudo` to a separate command; `sudoer` security-context test expects UID/GID 170 instead of 171 |
+| **Major** | Rock process/health tests omit a writable mount for a charm-declared storage path and therefore fail when the image runs as `_daemon_` |
 | **Minor** | Variable naming differences; comment wording; cosmetic ordering of YAML keys |
 
 ## Reference table
