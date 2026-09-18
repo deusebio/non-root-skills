@@ -27,10 +27,11 @@ Workloads:
 Depending on the issues identified during the assessment phase, implement the following mitigations:
 
 1. If the charm container is non-compliant, you need to modify the charm code to require as minimal privileges as possible:
-    1. Files being written by the charm in the charm container MUST BE in directories writable by the charm user — typically relative paths within the charm directory (e.g. `./path/to/file`) or paths under `/tmp`. If files are outside of these paths, move their location into those paths to ensure the charm can write to them.
-    2. DO NOT use elevated permissions to change directory ownerships, permissions or create directories/files in non-writable locations.
+    1. Files being written by the charm in the charm container MUST BE in directories writable by the charm user — typically relative paths within the charm directory (e.g. `./path/to/file`) or paths under `/tmp`. If files are outside of these paths, move their location into those paths to ensure the charm can write to them. This includes `Path.write_text`, `mkdir`, `open`, `unlink`, and equivalent shell redirection or file APIs.
+    2. DO NOT use elevated permissions to change directory ownerships, permissions or create directories/files in non-writable locations. `sudo` belongs only on the specific system command that requires it; it does not make surrounding direct file operations safe.
     3. Update the `metadata.yaml` or `charmcraft.yaml` file to include the `charm-user` key set to `non-root` or `sudoer`. Use `sudoer` only when elevated privileges are required to run commands such as installation of packages (e.g. `apt install`) or system configurations (e.g. `sysctl`). Use `sudo` in front of commands requiring elevated privileges. If no commands require elevated privileges, you MUST use `charm-user: non-root`.
-    4. Since support for the `charm-user` key was added for in `juju>=3.6.0`, add this constraint in the `assume:` section, e.g.
+    4. For `charm-user: sudoer`, expect the charm container process to run with UID/GID `171`; for `charm-user: non-root`, expect UID/GID `170`. Use the matching value in security-context tests.
+    5. Since support for the `charm-user` key was added for in `juju>=3.6.0`, add this constraint in the `assume:` section, e.g.
     ```
     ...
     assumes:
@@ -66,6 +67,7 @@ Depending on the issues identified during the assessment phase, implement the fo
         You can find a full example of a `rockcraft.yaml` file with the correct configuration for non-root user in the [references](./references/non-root-rock.yaml).
         - Build the new image using `rockcraft`.
         - Add a test in the repository that runs the image using docker and verifies that the image is running as non-root user and that the permissions for the path used by the charm are set correctly to allow non-root user access. The test should explicitly assert the runtime UID/GID (for example with `id -u` and `id -g`) and path access checks. You can refer to the [`test_non_root_image.py`](./references/test_non_root_image.py) file in the [references folder](./references) for an example of how to implement this test. If the repository is using [dgoss](https://github.com/goss-org/goss/blob/master/extras/dgoss/README.md) to run the image validation, please stick to use the framework. You can refer to [`test_non_root_dgoss.yaml`](./references/test_non_root_dgoss.yaml) in the [references folder](./references) to an example of how to implement this.
+        - Test the image with every storage mount declared by the charm. Create a writable host directory owned by `584792`, mount it at the workload storage location, and run the normal process/health checks with that mount. A non-root image must not be expected to create a root-owned storage directory itself.
         - Publish the image to my personal docker hub and update the charm's `metadata.yaml` or `charmcraft.yaml` file to reference the new image.
 
 ## Output 

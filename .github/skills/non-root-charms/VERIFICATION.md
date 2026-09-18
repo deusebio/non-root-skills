@@ -24,13 +24,16 @@ def get_pod_names(client: lightkube.Client, model: str, application_name: str) -
     ]
 ```
 
-2. Once the support functions are in place, you can add the test function that checks the security context of the containers. At the top of the integration test file, add the following imports and build the `CONTAINERS_SECURITY_CONTEXT_MAP` from `metadata.yaml`. This map is generated automatically from the `uid`/`gid` values in the `containers` section, plus a `charm` entry for the Juju agent container (UID/GID 170). Then 
+2. Once the support functions are in place, you can add the test function that checks the security context of the containers. At the top of the integration test file, add the following imports and build the `CONTAINERS_SECURITY_CONTEXT_MAP` from `metadata.yaml` or `charmcraft.yaml`. This map is generated automatically from the `uid`/`gid` values in the `containers` section, plus a `charm` entry for the Juju agent container: UID/GID 170 for `charm-user: non-root`, or UID/GID 171 for `charm-user: sudoer`. Then
 
 ```python
 from <helper> import assert_security_context, generate_container_securitycontext_map, get_pod_names
 
 METADATA = yaml.safe_load(Path("./metadata.yaml").read_text())
-CONTAINERS_SECURITY_CONTEXT_MAP = generate_container_securitycontext_map(METADATA)
+CONTAINERS_SECURITY_CONTEXT_MAP = generate_container_securitycontext_map(
+    METADATA,
+    juju_user_id=171 if METADATA.get("charm-user") == "sudoer" else 170,
+)
 ```
 
 3. Add the test after the charm is deployed and active. The test **must be placed after** a test (or fixture) that deploys the charm and waits for it to be active — for example, right after `test_build_and_deploy_hub_charm` which ends with `juju.wait(jubilant.all_active, ...)`. Do **not** create a separate test file unless there is no test deploying the charm. 
@@ -60,7 +63,9 @@ def test_container_security_context(
 
 This test will check that the container's security context is correctly set to run as a non-root user, ensuring that the charm complies with non-root user requirements.
 
-4. Make sure that the changes align with the repository standards and it complies with the linting and static typing rules. Check if the repository defines contributing guidelines and make sure you are running the checks. If there are issues due to changes done in the Mitigation phase, notify this to the agent that has done the Mitigation. If you have done those changes, fix them yourself. 
+4. Verify every direct charm-container write identified during assessment. In particular, exercise certificate, configuration, cache, and temporary-file paths under the actual configured charm user. A privileged command such as `sudo update-ca-certificates` does not validate direct writes performed by `Path.write_text`, `mkdir`, `open`, or shell redirection; those paths must be writable without elevation.
+
+5. Make sure that the changes align with the repository standards and it complies with the linting and static typing rules. Check if the repository defines contributing guidelines and make sure you are running the checks. If there are issues due to changes done in the Mitigation phase, notify this to the agent that has done the Mitigation. If you have done those changes, fix them yourself.
 
 ## Output
 
