@@ -30,6 +30,13 @@ Depending on the issues identified during the assessment phase, implement the fo
     1. Files being written by the charm in the charm container MUST BE in directories writable by the charm user — typically relative paths within the charm directory (e.g. `./path/to/file`) or paths under `/tmp`. If files are outside of these paths, move their location into those paths to ensure the charm can write to them.
     2. DO NOT use elevated permissions to change directory ownerships, permissions or create directories/files in non-writable locations.
     3. Update the `metadata.yaml` or `charmcraft.yaml` file to include the `charm-user` key set to `non-root` or `sudoer`. Use `sudoer` only when elevated privileges are required to run commands such as installation of packages (e.g. `apt install`) or system configurations (e.g. `sysctl`). Use `sudo` in front of commands requiring elevated privileges. If no commands require elevated privileges, you MUST use `charm-user: non-root`.
+    4. Since support for the `charm-user` key was added for in `juju>=3.6.0`, add this constraint in the `assume:` section, e.g.
+    ```
+    ...
+    assumes:
+    - juju >= 3.6.0
+    ...
+    ```
 2. If the charm's workload containers are not compliant because they do not have `uid` and `gid` set to `584792`, update the `metadata.yaml` or `charmcraft.yaml` file to set these values for each container.
 3. If the workload images are not compliant (either because the image does not run as `_daemon_` or the path used by the charm do not have the correct permission), a new image needs to be built with the correct permissions for non-root users. You MUST use `rockcraft` to build the image, even if it is resource intensive. DO NOT use `Dockerfile`. To do this:
     1. Identify the base image used by the charm by checking the `upstream-source` field in the `resources` section of the charm's configuration.
