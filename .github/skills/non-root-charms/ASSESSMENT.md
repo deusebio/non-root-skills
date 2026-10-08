@@ -14,6 +14,7 @@ To assess whether a charm complies with non-root user requirements, you can foll
   - Check non-root charm container: Check either `metadata.yaml` or `charmcraft.yaml` to see if it specifies a non-root user in its configuration (`charm-user` key must be set to either `non-root` or `sudoer`). If this is not set, scan the charm code to find out
     - Path in the charm container where the charm needs to be able to read/write
     - Commands that require elevated privileges (e.g. `apt`), which would need to be invoked with `sudo`.
+    - Direct file and directory writes performed by the charm process itself. These writes must target paths writable by the configured charm user; adding `sudo` to a separate command does not make Python or shell file operations writable.
   - Check non-root workloads. For each workload container (each entry defined in the `containers` section of either `metadata.yaml` or `charmcraft.yaml`), check that:
     - `uid` and `gid` are set to `584792`.  
     - Identify the container image used by the charm by checking the `upstream-source` field in the `resources` section that has the same key as the `resource` field in the `containers` section.
@@ -29,6 +30,7 @@ To assess whether a charm complies with non-root user requirements, you can foll
   The reason for non-compliance for the charm container can be one of the following:
     - `charm-user` not set; no elevated privileges required — set to `non-root`.
     - `charm-user` not set; charm executes commands requiring elevated privileges (e.g. `apt`) — set to `sudoer`.
+    - charm writes directly to a root-owned system path — relocate those writes to a charm-writable path; only the privileged system command may use `sudo`.
   The reason for non-compliance for workload containers can be one of the following:
     - non-root user issue: `uid` and `gid` are not set to `584792`.
     - Permission issue: when the charm code includes operations that require read/write commands without proper permissions for non-root users.
